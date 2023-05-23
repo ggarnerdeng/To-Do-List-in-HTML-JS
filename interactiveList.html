@@ -1,0 +1,255 @@
+<!--Garner Deng. 5/23/2023-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    input[type="text"] {
+      padding: 5px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 5px 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #taskList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .task-text {
+      flex-grow: 1;
+      margin-right: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .task-delete {
+      margin-left: 5px;
+      padding: 3px 8px;
+      background-color: #f44336;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .task-delete:hover {
+      background-color: #d32f2f;
+    }
+
+    .task-timestamp {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .task-priority {
+      font-size: 12px;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    .completed {
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>To-Do List</h1>
+  <input type="text" id="taskInput" placeholder="Add a new task">
+  <button onclick="addTask()">Add Task</button>
+
+  <h2>Tasks: <span id="taskCount"></span></h2>
+  <ul id="taskList"></ul>
+  <button onclick="clearCompletedTasks()">Clear Completed Tasks</button>
+
+  <script>
+    // Array to store tasks
+    let tasks = [];
+
+    // Function to add a new task
+    function addTask() {
+      const taskInput = document.getElementById("taskInput");
+      const taskText = taskInput.value;
+      if (taskText.trim() !== "") {
+        const task = {
+          text: taskText,
+          completed: false,
+          timestamp: new Date().toLocaleString(), // Add timestamp
+          priority: "Medium" // Default priority is set to "Medium"
+        };
+        tasks.push(task);
+        saveTasks(); // Save tasks to local storage
+        renderTasks();
+        taskInput.value = "";
+      }
+    }
+
+    // Function to render tasks
+    function renderTasks() {
+      const taskList = document.getElementById("taskList");
+      const taskCount = document.getElementById("taskCount");
+      taskList.innerHTML = "";
+      taskCount.textContent = tasks.length;
+
+      tasks.forEach(function (task, index) {
+        const li = document.createElement("li");
+        li.className = "task-item";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.innerText = "Delete";
+        deleteButton.className = "task-delete";
+        deleteButton.addEventListener("click", function () {
+          deleteTask(index);
+        });
+
+        const timestamp = document.createElement("span");
+        timestamp.innerText = task.timestamp;
+        timestamp.className = "task-timestamp";
+
+        const taskText = document.createElement("span");
+        taskText.innerText = task.text;
+        taskText.className = "task-text";
+        if (task.completed) {
+          taskText.classList.add("completed");
+        }
+
+        const prioritySelect = document.createElement("select");
+        prioritySelect.className = "task-priority";
+        prioritySelect.addEventListener("change", function () {
+          changePriority(index, prioritySelect.value);
+        });
+
+        const priorities = ["High", "Medium", "Low"];
+        priorities.forEach(function (priority) {
+          const option = document.createElement("option");
+          option.value = priority;
+          option.textContent = priority;
+          if (priority === task.priority) {
+            option.selected = true;
+          }
+          prioritySelect.appendChild(option);
+        });
+
+        const editButton = document.createElement("button");
+        editButton.innerText = "Edit";
+        editButton.className = "task-edit";
+        editButton.addEventListener("click", function () {
+          editTask(index);
+        });
+
+        li.appendChild(deleteButton);
+        li.appendChild(timestamp);
+        li.appendChild(taskText);
+        li.appendChild(prioritySelect);
+        li.appendChild(editButton);
+        taskList.appendChild(li);
+      });
+    }
+
+    // Function to toggle task completion
+    function toggleCompleted(index) {
+      tasks[index].completed = !tasks[index].completed;
+      saveTasks(); // Save tasks to local storage
+      renderTasks();
+    }
+
+    // Function to delete a task
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks(); // Save tasks to local storage
+      renderTasks();
+    }
+
+    // Function to edit a task
+    function editTask(index) {
+      const newTaskText = prompt("Enter new task text:");
+      if (newTaskText && newTaskText.trim() !== "") {
+
+        tasks[index].text = newTaskText;
+        saveTasks(); // Save tasks to local storage
+        renderTasks();
+      }
+    }
+
+    // Function to change priority
+    function changePriority(index, newPriority) {
+      tasks[index].priority = newPriority;
+      saveTasks(); // Save tasks to local storage
+      renderTasks();
+    }
+
+    // Function to clear completed tasks
+    function clearCompletedTasks() {
+      tasks = tasks.filter(function (task) {
+        return !task.completed;
+      });
+      saveTasks(); // Save tasks to local storage
+      renderTasks();
+    }
+
+    // Function to save tasks to local storage
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Function to retrieve tasks from local storage
+    function retrieveTasks() {
+      const savedTasks = localStorage.getItem('tasks');
+      if (savedTasks) {
+        tasks = JSON.parse(savedTasks);
+      }
+    }
+
+    // Retrieve tasks from local storage on page load
+    retrieveTasks();
+    renderTasks();
+
+    // Add event listener for Enter key press
+    const taskInput = document.getElementById("taskInput");
+    taskInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        addTask();
+      }
+    });
+  </script>
+</body>
+
+</html>
