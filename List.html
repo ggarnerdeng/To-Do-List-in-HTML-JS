@@ -1,0 +1,29 @@
+<!--Garner Deng. 5/23/2023-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="List.css">
+</head>
+
+<body>
+    <h1>To-Do List</h1>
+    <input type="text" id="taskInput" placeholder="Add a new task">
+    <button onclick="addTask()">Add Task</button>
+
+    <h2>Tasks: <span id="taskCount"></span></h2>
+    <ul id="taskList"></ul>
+
+    <h2>Options:</h2>
+    <button onclick="sortByName()">Sort by Name</button>
+    <button onclick="sortByDate()">Sort by Date</button>
+    <button onclick="sortByPriority()">Sort by Priority</button>
+    <button onclick="downloadTasks()">Download Tasks</button>
+    <input type="file" id="importTasksInput" accept=".txt" onchange="importTasks(event)">
+    <script src="List.js"></script>
+
+</body>
+
+</html>

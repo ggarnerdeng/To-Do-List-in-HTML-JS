@@ -26,13 +26,14 @@
     }
 
     button {
-      padding: 5px 10px;
-      font-size: 16px;
+      padding: 8px 12px;
+      font-size: 14px;
       background-color: #4CAF50;
       color: #fff;
       border: none;
       border-radius: 3px;
       cursor: pointer;
+      margin-right: 10px;
     }
 
     button:hover {
@@ -87,6 +88,27 @@
     .completed {
       text-decoration: line-through;
     }
+
+    .download-button {
+      padding: 8px 12px;
+      font-size: 14px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .download-button:hover {
+      background-color: #45a049;
+    }
+
+    .import-input {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
   </style>
 </head>
 
@@ -97,7 +119,13 @@
 
   <h2>Tasks: <span id="taskCount"></span></h2>
   <ul id="taskList"></ul>
-  <button onclick="clearCompletedTasks()">Clear Completed Tasks</button>
+
+  <h2>Options:</h2>
+  <button onclick="sortByName()">Sort by Name</button>
+  <button onclick="sortByDate()">Sort by Date</button>
+  <button onclick="sortByPriority()">Sort by Priority</button>
+  <button onclick="downloadTasks()">Download Tasks</button>
+  <input type="file" id="importTasksInput" accept=".txt" onchange="importTasks(event)">
 
   <script>
     // Array to store tasks
@@ -207,19 +235,39 @@
         renderTasks();
       }
     }
+    function downloadTasks() {
+      const tasksText = tasks.map(task => {
+        return `${task.text},${task.completed},${task.timestamp},${task.priority}`;
+      }).join('\n');
 
+      const element = document.createElement('a');
+      const file = new Blob([tasksText], { type: 'text/plain' });
+      element.href = URL.createObjectURL(file);
+      element.download = 'tasks.txt';
+      element.click();
+    }
+    function importTasks(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const tasksText = e.target.result;
+        const tasksArray = tasksText.split('\n').map(line => line.split(','));
+        tasks = tasksArray.map(taskData => {
+          return {
+            text: taskData[0],
+            completed: taskData[1] === 'true',
+            timestamp: taskData[2],
+            priority: taskData[3]
+          };
+        });
+        saveTasks(); // Save imported tasks to local storage
+        renderTasks();
+      };
+      reader.readAsText(file);
+    }
     // Function to change priority
     function changePriority(index, newPriority) {
       tasks[index].priority = newPriority;
-      saveTasks(); // Save tasks to local storage
-      renderTasks();
-    }
-
-    // Function to clear completed tasks
-    function clearCompletedTasks() {
-      tasks = tasks.filter(function (task) {
-        return !task.completed;
-      });
       saveTasks(); // Save tasks to local storage
       renderTasks();
     }
@@ -239,6 +287,36 @@
 
     // Retrieve tasks from local storage on page load
     retrieveTasks();
+
+    // Sort tasks by name
+    function sortByName() {
+      tasks.sort(function (a, b) {
+        return a.text.localeCompare(b.text);
+      });
+      renderTasks();
+    }
+
+    // Sort tasks by date
+    function sortByDate() {
+      tasks.sort(function (a, b) {
+        return new Date(a.timestamp) - new Date(b.timestamp);
+      });
+      renderTasks();
+    }
+
+    // Sort tasks by priority
+    function sortByPriority() {
+      const priorityOrder = {
+        "High": 1,
+        "Medium": 2,
+        "Low": 3
+      };
+      tasks.sort(function (a, b) {
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      });
+      renderTasks();
+    }
+
     renderTasks();
 
     // Add event listener for Enter key press
