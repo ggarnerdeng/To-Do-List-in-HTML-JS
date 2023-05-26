@@ -1,6 +1,13 @@
 // Array to store tasks
 let tasks = [];
 
+// Object to track the current sorting order
+const sortOrders = {
+    name: "asc",
+    date: "asc",
+    priority: "asc"
+};
+
 // Function to add a new task
 function addTask() {
     const taskInput = document.getElementById("taskInput");
@@ -160,30 +167,53 @@ retrieveTasks();
 
 // Sort tasks by name
 function sortByName() {
+    const defaultOrder = "asc";
+    const isDefaultOrder = sortOrders.name === defaultOrder;
+
     tasks.sort(function (a, b) {
-        return a.text.localeCompare(b.text);
+        const order = isDefaultOrder ? -1 : 1;
+        const result = a.text.localeCompare(b.text);
+        return result * order;
     });
+
+    sortOrders.name = isDefaultOrder ? "desc" : defaultOrder;
     renderTasks();
 }
 
+
 // Sort tasks by date
 function sortByDate() {
+    const defaultOrder = "desc";
+    const isDefaultOrder = sortOrders.date === defaultOrder;
+
     tasks.sort(function (a, b) {
-        return new Date(a.timestamp) - new Date(b.timestamp);
+        const order = isDefaultOrder ? -1 : 1;
+        const result = new Date(b.timestamp) - new Date(a.timestamp);
+        return result * order;
     });
+
+    sortOrders.date = isDefaultOrder ? "asc" : defaultOrder;
     renderTasks();
 }
 
 // Sort tasks by priority
 function sortByPriority() {
-    const priorityOrder = {
-        "High": 1,
-        "Medium": 2,
-        "Low": 3
-    };
+    const defaultOrder = "desc";
+    const isDefaultOrder = sortOrders.priority === defaultOrder;
+
     tasks.sort(function (a, b) {
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
+        const priorityOrder = {
+            High: 1,
+            Medium: 2,
+            Low: 3
+        };
+
+        const order = isDefaultOrder ? -1 : 1;
+        const result = priorityOrder[a.priority] - priorityOrder[b.priority];
+        return result * order;
     });
+
+    sortOrders.priority = isDefaultOrder ? "asc" : defaultOrder;
     renderTasks();
 }
 
