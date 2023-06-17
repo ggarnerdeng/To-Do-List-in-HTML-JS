@@ -25,7 +25,10 @@ function addTask() {
       timestamp: timestamp,
       priority: "Medium" // Default priority is set to "Medium"
     };
-    tasks.push(task);
+
+    // Add the task at the beginning of the tasks array
+    tasks.unshift(task);
+
     saveTasks(); // Save tasks to local storage
     renderTasks();
     taskInput.value = "";
@@ -38,6 +41,10 @@ function renderTasks() {
   const taskCount = document.getElementById("taskCount");
   taskList.innerHTML = "";
   taskCount.textContent = tasks.length;
+
+  const searchInput = document.getElementById("searchInput");
+  const searchQuery = searchInput.value.toLowerCase();
+
   // Create the header row
   const headerRow = document.createElement("li");
   headerRow.className = "task-header";
@@ -69,7 +76,12 @@ function renderTasks() {
   headerRow.appendChild(headerEdit);
 
   taskList.appendChild(headerRow);
-  tasks.forEach(function (task, index) {
+
+  const filteredTasks = tasks.filter(function (task) {
+    return task.text.toLowerCase().includes(searchQuery);
+  });
+
+  filteredTasks.forEach(function (task, index) {
     const li = document.createElement("li");
     li.className = "task-item";
 
@@ -86,6 +98,7 @@ function renderTasks() {
       month: "2-digit",
       day: "2-digit"
     };
+
     const formattedTimestamp = new Date(task.timestamp).toLocaleDateString(undefined, dateOptions);
     timestamp.innerText = formattedTimestamp;
     timestamp.className = "task-timestamp";
@@ -95,6 +108,23 @@ function renderTasks() {
     taskText.className = "task-text";
     if (task.completed) {
       taskText.classList.add("completed");
+    }
+
+    // Highlight search query in task name
+    if (searchQuery.length > 0) {
+      const searchIndex = task.text.toLowerCase().indexOf(searchQuery);
+      if (searchIndex !== -1) {
+        const highlightedText = document.createElement("mark");
+        highlightedText.innerText = task.text.substr(searchIndex, searchQuery.length);
+        const beforeText = document.createElement("span");
+        beforeText.innerText = task.text.substr(0, searchIndex);
+        const afterText = document.createElement("span");
+        afterText.innerText = task.text.substr(searchIndex + searchQuery.length);
+        taskText.innerHTML = "";
+        taskText.appendChild(beforeText);
+        taskText.appendChild(highlightedText);
+        taskText.appendChild(afterText);
+      }
     }
 
     const prioritySelect = document.createElement("select");
@@ -139,10 +169,24 @@ function toggleCompleted(index) {
 
 // Function to delete a task
 function deleteTask(index) {
-  tasks.splice(index, 1);
-  saveTasks(); // Save tasks to local storage
-  renderTasks();
+  const searchInput = document.getElementById("searchInput");
+  const searchQuery = searchInput.value.toLowerCase();
+
+  const filteredTasks = tasks.filter(function (task) {
+    return task.text.toLowerCase().includes(searchQuery);
+  });
+
+  const originalIndex = tasks.indexOf(filteredTasks[index]);
+
+  const taskName = tasks[originalIndex].text;
+  const confirmation = confirm(`Are you sure you want to delete the task: ${taskName}`);
+  if (confirmation) {
+    tasks.splice(originalIndex, 1);
+    saveTasks(); // Save tasks to local storage
+    renderTasks();
+  }
 }
+
 
 // Function to edit a task
 function editTask(index) {
@@ -154,6 +198,7 @@ function editTask(index) {
     renderTasks();
   }
 }
+
 function downloadTasks() {
   const tasksText = tasks.map(task => {
     return `${task.text},${task.completed},${task.timestamp},${task.priority}`;
@@ -165,6 +210,7 @@ function downloadTasks() {
   element.download = 'tasks.txt';
   element.click();
 }
+
 function importTasks(event) {
   const file = event.target.files[0];
   const reader = new FileReader();
@@ -222,7 +268,6 @@ function sortByName() {
   renderTasks();
 }
 
-
 // Sort tasks by date
 function sortByDate() {
   const defaultOrder = "desc";
@@ -268,4 +313,10 @@ taskInput.addEventListener("keydown", function (event) {
     event.preventDefault();
     addTask();
   }
+});
+
+// Event listener for search function
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("input", function () {
+  renderTasks();
 });

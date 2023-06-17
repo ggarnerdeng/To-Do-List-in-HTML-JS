@@ -1,10 +1,18 @@
 # To-Do-List-in-HTML
 The code follows best practices by separating the JavaScript logic from the HTML markup using event listeners and functions. It also applies CSS styling to create a visually appealing interface with a responsive design.
 
-Overall, the code demonstrates a good understanding of HTML elements, CSS styling, DOM manipulation with JavaScript, and local storage usage. 
+Overall, the code demonstrates a good understanding of HTML elements, CSS styling, DOM manipulation with JavaScript, and local storage usage.
 
 ===============================================================================
-List of possible improvements:
+# Changelog:
+6/17/2023: Added header. New entries now appear on top row. Added confirmation
+  dialogue for deletion of items. Added case insensitive, highlighted match
+  search functionality. Fixed deletion bug where after using search, task items
+  had different indexes, leading to deletion of incorrect items. 
+
+===============================================================================
+# List of possible improvements:
+
 1. User Authentication: Implement a user authentication system where users can sign up, log in, and have their own personalized to-do lists. This would involve using technologies like user registration, login/logout functionality, and secure storage of user data.
 
 2. Task Categories or Labels: Allow users to categorize their tasks by adding labels or categories. This feature would enable better organization and filtering of tasks based on specific categories.
@@ -36,3 +44,7 @@ Ranking:
 8. Task Reminders and Notifications
 9. Task History and Activity Logs
 10. Undo/Redo Functionality
+
+Modularization: Break down the code into reusable functions to improve code readability and maintainability. Separate the code into functions based on their specific responsibilities, such as adding a task, rendering tasks, toggling completion, deleting a task, editing a task, and so on.
+
+User Experience Enhancements: Add additional features to enhance the user experience. For example, include confirmation dialogs before deleting a task, provide sorting options for tasks, add filtering or searching functionality, implement task prioritization with visual indicators, and so on.
