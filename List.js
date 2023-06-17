@@ -23,7 +23,7 @@ function addTask() {
       text: taskText,
       completed: false,
       timestamp: timestamp,
-      priority: "Medium" // Default priority is set to "Medium"
+      priority: 50 // Default priority is set to 50
     };
 
     // Add the task at the beginning of the tasks array
@@ -62,7 +62,7 @@ function renderTasks() {
   headerText.className = "header-text";
 
   const headerPriority = document.createElement("span");
-  headerPriority.textContent = "";
+  headerPriority.textContent = "Priority Value";
   headerPriority.className = "header-priority";
 
   const headerEdit = document.createElement("span");
@@ -127,22 +127,9 @@ function renderTasks() {
       }
     }
 
-    const prioritySelect = document.createElement("select");
-    prioritySelect.className = "task-priority";
-    prioritySelect.addEventListener("change", function () {
-      changePriority(index, prioritySelect.value);
-    });
-
-    const priorities = ["High", "Medium", "Low"];
-    priorities.forEach(function (priority) {
-      const option = document.createElement("option");
-      option.value = priority;
-      option.textContent = priority;
-      if (priority === task.priority) {
-        option.selected = true;
-      }
-      prioritySelect.appendChild(option);
-    });
+    const priorityText = document.createElement("span");
+    priorityText.className = "task-priority";
+    priorityText.innerText = `${task.priority}`;
 
     const editButton = document.createElement("button");
     editButton.innerText = "Edit";
@@ -154,7 +141,7 @@ function renderTasks() {
     li.appendChild(deleteButton);
     li.appendChild(timestamp);
     li.appendChild(taskText);
-    li.appendChild(prioritySelect);
+    li.appendChild(priorityText);
     li.appendChild(editButton);
     taskList.appendChild(li);
   });
@@ -187,17 +174,24 @@ function deleteTask(index) {
   }
 }
 
-
 // Function to edit a task
 function editTask(index) {
-  const newTaskText = prompt("Enter new task text:");
-  if (newTaskText && newTaskText.trim() !== "") {
+  const originalTaskText = tasks[index].text;
+  const originalPriority = tasks[index].priority;
 
+  const newTaskText = prompt("Enter new task text:", originalTaskText);
+  const newPriority = prompt("Enter new priority value (0-100):", originalPriority);
+
+  if (newTaskText && newTaskText.trim() !== "") {
+    const updatedPriority = parseInt(newPriority);
+    const validatedPriority = Math.min(Math.max(updatedPriority, 0), 100); // Ensure the priority value is within the range of 0-100
     tasks[index].text = newTaskText;
+    tasks[index].priority = validatedPriority;
     saveTasks(); // Save tasks to local storage
     renderTasks();
   }
 }
+
 
 function downloadTasks() {
   const tasksText = tasks.map(task => {
@@ -222,7 +216,7 @@ function importTasks(event) {
         text: taskData[0],
         completed: taskData[1] === 'true',
         timestamp: taskData[2],
-        priority: taskData[3]
+        priority: parseInt(taskData[3])
       };
     });
     saveTasks(); // Save imported tasks to local storage
@@ -289,14 +283,8 @@ function sortByPriority() {
   const isDefaultOrder = sortOrders.priority === defaultOrder;
 
   tasks.sort(function (a, b) {
-    const priorityOrder = {
-      High: 1,
-      Medium: 2,
-      Low: 3
-    };
-
     const order = isDefaultOrder ? -1 : 1;
-    const result = priorityOrder[a.priority] - priorityOrder[b.priority];
+    const result = a.priority - b.priority;
     return result * order;
   });
 

@@ -8,7 +8,8 @@ Overall, the code demonstrates a good understanding of HTML elements, CSS stylin
 6/17/2023: Added header. New entries now appear on top row. Added confirmation
   dialogue for deletion of items. Added case insensitive, highlighted match
   search functionality. Fixed deletion bug where after using search, task items
-  had different indexes, leading to deletion of incorrect items. 
+  had different indexes, leading to deletion of incorrect items. Added mobile-
+  friendly CSS version. Priority value now numeric and adjustable. Edit button now autopopulates original values of task name and priority value.
 
 ===============================================================================
 # List of possible improvements:
